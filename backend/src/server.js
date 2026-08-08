@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const path = require('path');
+const mongoose = require('mongoose');
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
@@ -37,15 +38,29 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
-// Health check endpoint
-app.get('/health', (req, res) => {
+// Dynamic Health Check Handler
+const getHealthStatus = (req, res) => {
+  const stateMap = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+  const dbState = mongoose.connection.readyState;
+  const dbStatus = stateMap[dbState] || 'unknown';
+
   res.json({
-    status: 'UP',
-    system: 'HarvestIQ AI Agriculture Platform',
+    success: dbState === 1,
+    message: 'HarvestIQ API is healthy',
+    database: dbStatus,
     timestamp: new Date(),
     environment: process.env.NODE_ENV || 'development'
   });
-});
+};
+
+// Root Health check endpoints
+app.get('/health', getHealthStatus);
+app.get('/healthz', getHealthStatus);
 
 // API Routes
 const apiPrefix = process.env.API_PREFIX || '/api/v1';

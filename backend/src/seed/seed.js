@@ -16,10 +16,12 @@ const { AIRun, AIRecommendation } = require('../models/AI');
 const { Alert, Notification } = require('../models/AlertNotification');
 const AuditLog = require('../models/AuditLog');
 
-const seedDatabase = async () => {
+const seedDatabase = async ({ isStandalone = false } = {}) => {
   try {
     const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/harvestiq';
-    await mongoose.connect(mongoUri);
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(mongoUri);
+    }
     console.log(`[Seed Script] Connected to MongoDB: ${mongoUri}`);
 
     // Clear existing data
@@ -311,7 +313,7 @@ const seedDatabase = async () => {
         supplierLotNumber: 'KSC-99823',
         qualityStatus: 'Passed',
         initialQuantity: 200,
-        currentQuantity: 85 // Low stock condition for demonstration!
+        currentQuantity: 85
       },
       {
         organisationId: org._id,
@@ -516,20 +518,33 @@ const seedDatabase = async () => {
     console.log('\n==================================================');
     console.log(' HarvestIQ DATABASE SEEDED SUCCESSFULLY!');
     console.log('==================================================');
-    console.log('Demo Credentials for Login:');
-    console.log(' 1. Administrator:         admin@harvestiq.org / Password123!');
-    console.log(' 2. Procurement Manager:   procurement@harvestiq.org / Password123!');
-    console.log(' 3. Inventory Planner:     planner@harvestiq.org / Password123!');
-    console.log(' 4. Warehouse User:        warehouse@harvestiq.org / Password123!');
-    console.log(' 5. Supplier:              supplier@harvestiq.org / Password123!');
-    console.log(' 6. Finance Reviewer:      finance@harvestiq.org / Password123!');
-    console.log('==================================================\n');
 
-    process.exit(0);
+    const summary = {
+      users: users.length,
+      categories: categories.length,
+      units: units.length,
+      locations: locations.length,
+      items: items.length,
+      suppliers: suppliers.length,
+      farmers: farmers.length
+    };
+
+    if (isStandalone) {
+      process.exit(0);
+    }
+
+    return summary;
   } catch (error) {
     console.error('[Seed Error]', error);
-    process.exit(1);
+    if (isStandalone) {
+      process.exit(1);
+    }
+    throw error;
   }
 };
 
-seedDatabase();
+if (require.main === module) {
+  seedDatabase({ isStandalone: true });
+}
+
+module.exports = seedDatabase;
