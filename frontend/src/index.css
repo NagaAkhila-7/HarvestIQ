@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 antialiased transition-colors duration-150;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.011em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+/* Enterprise Card System */
+.glass-card {
+  @apply bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 shadow-sm rounded-xl transition-all duration-150;
+}
+
+.kpi-card {
+  @apply bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 p-5 rounded-xl shadow-sm flex flex-col justify-between space-y-3;
+}
+
+/* Table Utilities */
+.table-responsive {
+  @apply w-full overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900;
+}
+
+.table-header {
+  @apply bg-slate-50/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 font-semibold text-[11px] uppercase tracking-wider border-b border-slate-200 dark:border-slate-700/80;
+}
+
+/* Focus and input states */
+input:focus, select:focus, textarea:focus {
+  @apply outline-none ring-2 ring-emerald-500/30 border-emerald-500 transition-all;
+}
