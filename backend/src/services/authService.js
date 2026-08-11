@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const User = require('../models/User');
 const Organisation = require('../models/Organisation');
 const { logAuditEvent } = require('./auditService');
+const emailService = require('./emailService');
 
 const generateTokens = (user, rememberMe = false) => {
   const accessToken = jwt.sign(
@@ -124,13 +126,11 @@ const refreshToken = async (tokenString) => {
 
   const isValid = await bcrypt.compare(tokenString, user.refreshTokenHash);
   if (!isValid) {
-    // Possible token reuse attack - clear token hash
     user.refreshTokenHash = '';
     await user.save();
     throw new Error('Token reuse detected. Session revoked.');
   }
 
-  // Rotate refresh token
   const tokens = generateTokens(user);
   user.refreshTokenHash = await bcrypt.hash(tokens.refreshToken, 10);
   await user.save();
@@ -154,22 +154,28 @@ const logout = async (user, ipAddress) => {
   }
 };
 
-const crypto = require('crypto');
-const emailService = require('./emailService');
-
 const forgotPassword = async (email) => {
-  const user = await User.findOne({ email: email.toLowerCase(), isDeleted: false });
-  const genericMessage = 'If an account with that email exists, password reset instructions have been sent.';
+  const genericMessage = 'If an account exists for this email, password reset instructions have been sent.';
+  
+  if (!email) {
+    throw new Error('Email address is required.');
+  }
+
+  const user = await User.findOne({ email: email.toLowerCase().trim(), isDeleted: false });
+  console.log('[ForgotPassword] User found:', Boolean(user));
   
   if (!user || !user.isActive) {
+    // Return generic success response to prevent account enumeration
     return { message: genericMessage, emailSent: false };
   }
 
+  // Generate cryptographically secure 32-byte raw token
   const rawToken = crypto.randomBytes(32).toString('hex');
+  // Store SHA-256 hash of token in database
   const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
 
   user.resetPasswordToken = tokenHash;
-  user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+  user.resetPasswordExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes expiration
   await user.save();
 
   await logAuditEvent({
@@ -181,45 +187,55 @@ const forgotPassword = async (email) => {
     details: `Password reset requested for ${user.email}`
   });
 
-  const resetUrl = `http://localhost:5173/reset-password?token=${rawToken}`;
+  const frontendUrl = process.env.FRONTEND_URL || 'https://harvestiq-nu.vercel.app';
+  const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
 
-  if (emailService.isSmtpConfigured()) {
+  console.log('[ForgotPassword] Attempting password reset email via Brevo API');
+
+  if (emailService.isBrevoConfigured()) {
     try {
-      await emailService.sendPasswordResetEmail({
+      const resultData = await emailService.sendPasswordResetEmail({
         to: user.email,
         resetUrl,
         userName: user.name
       });
       return {
-        message: `Password reset instructions have been sent to ${user.email}. Please check your inbox and spam folder.`,
-        emailSent: true
+        message: genericMessage,
+        emailSent: true,
+        messageId: resultData?.messageId
       };
     } catch (err) {
-      console.error('SMTP Email Delivery Error:', err.message);
-      throw new Error(`Failed to send password reset email via SMTP: ${err.message}`);
+      console.error('[ForgotPassword] Brevo Email Delivery Error:', err.message);
+      throw new Error(`Failed to send password reset email via Brevo: ${err.message}`);
     }
   }
 
-  // Development mode fallback when SMTP is not configured
-  return {
-    message: 'If an account with that email exists, password reset instructions have been sent.',
-    emailSent: false,
-    isDevMode: true,
-    devResetToken: rawToken,
-    devResetUrl: resetUrl
+  console.log('[ForgotPassword] Brevo API key not configured on server.');
+  const response = {
+    message: genericMessage,
+    emailSent: false
   };
+
+  if (process.env.NODE_ENV !== 'production') {
+    response.isDevMode = true;
+    response.devResetToken = rawToken;
+    response.devResetUrl = resetUrl;
+  }
+
+  return response;
 };
 
 const resetPassword = async ({ token, newPassword }) => {
   if (!token || !newPassword) {
-    throw new Error('Token and new password are required');
+    throw new Error('Reset token and new password are required.');
   }
 
   if (newPassword.length < 8) {
-    throw new Error('Password must be at least 8 characters long');
+    throw new Error('Password must be at least 8 characters long.');
   }
 
-  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  // Hash incoming raw token to find matching SHA-256 hash in database
+  const tokenHash = crypto.createHash('sha256').update(token.trim()).digest('hex');
   const user = await User.findOne({
     resetPasswordToken: tokenHash,
     resetPasswordExpires: { $gt: new Date() },
@@ -227,14 +243,15 @@ const resetPassword = async ({ token, newPassword }) => {
   });
 
   if (!user || !user.isActive) {
-    throw new Error('Invalid or expired password reset token');
+    throw new Error('This password reset link is invalid or has expired.');
   }
 
-  // Pre-save hook will hash password automatically
+  // Set new password (pre-save hook automatically hashes with bcrypt)
   user.password = newPassword;
+  // Invalidate reset token and revoke active refresh tokens
   user.resetPasswordToken = '';
   user.resetPasswordExpires = null;
-  user.refreshTokenHash = ''; // Revoke previous sessions
+  user.refreshTokenHash = '';
   await user.save();
 
   await logAuditEvent({
