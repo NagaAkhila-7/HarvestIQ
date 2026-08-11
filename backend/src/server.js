@@ -3,7 +3,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
-const path = path = require('path');
+const path = require('path');
 const mongoose = require('mongoose');
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
