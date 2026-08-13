@@ -7,10 +7,12 @@ import { StatusBadge } from '../components/shared/StatusBadge';
 import { Modal } from '../components/shared/Modal';
 import { supplierApi } from '../api/supplierApi';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { Plus, Search, Truck, Star, Edit, Trash2 } from 'lucide-react';
 
 export const SuppliersPage = () => {
   const { hasRole } = useAuth();
+  const { t } = useTranslation();
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -114,13 +116,13 @@ export const SuppliersPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Supplier Performance & Scorecards"
-        description="Vendor directory, lead-time tracking, quality evaluation ratings, and supply chain risk scores."
+        title={t('suppliers.title')}
+        description={t('suppliers.description')}
         actions={
           canManageSuppliers ? (
             <Button variant="primary" size="sm" onClick={openCreateModal}>
               <Plus className="w-4 h-4 mr-1" />
-              Add Supplier Record
+              {t('suppliers.addSupplier')}
             </Button>
           ) : null
         }
@@ -131,7 +133,7 @@ export const SuppliersPage = () => {
           <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
           <input
             type="text"
-            placeholder="Search Supplier Name or Code..."
+            placeholder={t('suppliers.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -141,9 +143,9 @@ export const SuppliersPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          <div className="col-span-full p-8 text-center text-slate-500">Loading supplier records...</div>
+          <div className="col-span-full p-8 text-center text-slate-500">{t('common.loading')}</div>
         ) : suppliers.length === 0 ? (
-          <div className="col-span-full p-8 text-center text-slate-500">No supplier records found.</div>
+          <div className="col-span-full p-8 text-center text-slate-500">{t('inventory.noItems')}</div>
         ) : (
           suppliers.map((sup) => {
             const lastEval = sup.evaluations?.[sup.evaluations.length - 1];
@@ -160,27 +162,27 @@ export const SuppliersPage = () => {
 
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-slate-500">On-Time Delivery:</span>
+                    <span className="text-slate-500">{t('suppliers.onTimeDelivery')}:</span>
                     <span className="font-bold text-emerald-600 dark:text-emerald-400">{lastEval?.onTimeDeliveryRate || 95}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Quality Pass Rate:</span>
+                    <span className="text-slate-500">{t('suppliers.qualityPassRate')}:</span>
                     <span className="font-bold text-slate-900 dark:text-slate-100">{lastEval?.qualityPassRate || 98}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Vendor Risk Level:</span>
+                    <span className="text-slate-500">{t('suppliers.vendorRiskLevel')}:</span>
                     <StatusBadge status={sup.riskLevel} />
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-400">
-                  <span>Terms: {sup.paymentTerms}</span>
+                  <span>{t('suppliers.terms')}: {sup.paymentTerms}</span>
                   {canManageSuppliers && (
                     <div className="flex items-center gap-1.5">
-                      <Button variant="outline" size="sm" onClick={() => openEditModal(sup)} title="Edit Supplier">
+                      <Button variant="outline" size="sm" onClick={() => openEditModal(sup)} title={t('suppliers.editSupplier')}>
                         <Edit className="w-3.5 h-3.5" />
                       </Button>
-                      <Button variant="danger" size="sm" onClick={() => confirmDelete(sup)} title="Delete Supplier">
+                      <Button variant="danger" size="sm" onClick={() => confirmDelete(sup)} title={t('suppliers.deleteSupplier')}>
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
@@ -193,20 +195,20 @@ export const SuppliersPage = () => {
       </div>
 
       {/* New/Edit Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingSupplier ? "Edit Vendor Supplier" : "Register Vendor Supplier"}>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingSupplier ? t('suppliers.editSupplier') : t('suppliers.registerSupplier')}>
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Supplier Code" required value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} placeholder="SUP-004" />
-            <Input label="Company Name" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Agro Chemical Supplies" />
+            <Input label={t('suppliers.code')} required value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} placeholder="SUP-004" />
+            <Input label={t('suppliers.name')} required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Agro Chemical Supplies" />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Contact Person" required value={formData.contactPerson} onChange={e => setFormData({...formData, contactPerson: e.target.value})} />
-            <Input label="Phone Number" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+            <Input label={t('suppliers.contact')} required value={formData.contactPerson} onChange={e => setFormData({...formData, contactPerson: e.target.value})} />
+            <Input label={t('suppliers.phone')} required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Email Address" type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+            <Input label={t('suppliers.email')} type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
             <Select
-              label="Payment Terms"
+              label={t('suppliers.paymentTerms')}
               value={formData.paymentTerms}
               onChange={e => setFormData({...formData, paymentTerms: e.target.value})}
               options={[
@@ -219,45 +221,45 @@ export const SuppliersPage = () => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Select
-              label="Supplier Status"
+              label={t('suppliers.status')}
               value={formData.status}
               onChange={e => setFormData({...formData, status: e.target.value})}
               options={[
-                { label: 'Active', value: 'Active' },
-                { label: 'Under Review', value: 'Under Review' },
-                { label: 'Suspended', value: 'Suspended' }
+                { label: t('status.active'), value: 'Active' },
+                { label: t('status.underReview'), value: 'Under Review' },
+                { label: t('status.suspended'), value: 'Suspended' }
               ]}
             />
             <Select
-              label="Risk Level"
+              label={t('suppliers.riskLevel')}
               value={formData.riskLevel}
               onChange={e => setFormData({...formData, riskLevel: e.target.value})}
               options={[
-                { label: 'Low', value: 'Low' },
-                { label: 'Medium', value: 'Medium' },
-                { label: 'High', value: 'High' }
+                { label: t('status.low'), value: 'Low' },
+                { label: t('status.medium'), value: 'Medium' },
+                { label: t('status.high'), value: 'High' }
               ]}
             />
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="primary">{editingSupplier ? 'Save Changes' : 'Save Supplier'}</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('inventory.cancel')}</Button>
+            <Button type="submit" variant="primary">{editingSupplier ? t('inventory.saveChanges') : t('inventory.saveRecord')}</Button>
           </div>
         </form>
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title="Confirm Delete Supplier">
+      <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title={t('suppliers.confirmDeleteTitle')}>
         <div className="space-y-4">
           <p className="text-sm text-slate-700 dark:text-slate-300">
-            Are you sure you want to delete supplier <strong>{deletingSupplier?.name}</strong> ({deletingSupplier?.code})?
+            {t('suppliers.deleteWarning')} <strong>{deletingSupplier?.name}</strong> ({deletingSupplier?.code})?
           </p>
           <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs">
-            ⚠️ Soft deletion will remove vendor from future purchase orders while retaining historical audit logs.
+            ⚠️ {t('suppliers.deleteNotice')}
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <Button type="button" variant="outline" onClick={() => setIsDeleteModalOpen(false)}>Cancel</Button>
-            <Button type="button" variant="danger" onClick={handleDelete}>Delete Supplier</Button>
+            <Button type="button" variant="outline" onClick={() => setIsDeleteModalOpen(false)}>{t('inventory.cancel')}</Button>
+            <Button type="button" variant="danger" onClick={handleDelete}>{t('suppliers.deleteSupplier')}</Button>
           </div>
         </div>
       </Modal>

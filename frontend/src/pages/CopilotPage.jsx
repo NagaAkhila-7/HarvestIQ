@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { PageHeader } from '../components/shared/PageHeader';
 import { Button } from '../components/shared/Button';
 import { aiApi } from '../api/aiApi';
+import { useTranslation } from 'react-i18next';
 import { Cpu, Send, Sparkles, User, Bot, RefreshCw } from 'lucide-react';
 
 export const CopilotPage = () => {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState([
     {
       sender: 'ai',
-      text: 'Hello! I am **HarvestIQ AI Copilot** powered by Google Gemini API. I have full context on your FPO inventory balances, active field acreage, demand forecasts, and open procurement purchase orders. How can I assist your operations today?'
+      text: t('copilot.greeting')
     }
   ]);
   const [prompt, setPrompt] = useState('');
@@ -47,8 +49,8 @@ export const CopilotPage = () => {
   return (
     <div className="h-[calc(100vh-7rem)] flex flex-col space-y-4">
       <PageHeader
-        title="HarvestIQ AI Copilot"
-        description="Conversational intelligence powered by Google Gemini API with direct MongoDB operational context."
+        title={t('copilot.title')}
+        description={t('copilot.description')}
       />
 
       {/* Preset Query Chips */}
@@ -57,19 +59,19 @@ export const CopilotPage = () => {
           onClick={() => setPresetPrompt('Analyze active stockout risks and recommend purchase actions')}
           className="px-3 py-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-xs font-semibold hover:bg-emerald-200 transition-colors"
         >
-          🔍 Stockout Risk Analysis
+          {t('copilot.chipStockout')}
         </button>
         <button
           onClick={() => setPresetPrompt('What seed and fertilizer quantities are needed based on member field acreage?')}
           className="px-3 py-1.5 rounded-lg bg-cyan-100 dark:bg-cyan-950/60 text-cyan-800 dark:text-cyan-300 text-xs font-semibold hover:bg-cyan-200 transition-colors"
         >
-          🌾 Acreage Demand Projection
+          {t('copilot.chipDemand')}
         </button>
         <button
           onClick={() => setPresetPrompt('Summarize open Purchase Orders and vendor lead times')}
           className="px-3 py-1.5 rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 text-xs font-semibold hover:bg-purple-200 transition-colors"
         >
-          🚚 Vendor Lead-Time Audit
+          {t('copilot.chipVendor')}
         </button>
       </div>
 
@@ -109,7 +111,7 @@ export const CopilotPage = () => {
         {loading && (
           <div className="flex items-center gap-3 text-xs text-slate-400 font-semibold p-2">
             <Sparkles className="w-4 h-4 text-emerald-500 animate-spin" />
-            <span>Gemini AI is analyzing operational telemetry...</span>
+            <span>{t('copilot.analyzing')}</span>
           </div>
         )}
       </div>
@@ -118,7 +120,7 @@ export const CopilotPage = () => {
       <form onSubmit={handleSend} className="flex gap-2">
         <input
           type="text"
-          placeholder="Ask AI Copilot about inventory, suppliers, forecasts..."
+          placeholder={t('copilot.inputPlaceholder')}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           className="flex-1 px-4 py-3 text-xs rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
+import { LanguageSelector } from '../shared/LanguageSelector';
 import { Sun, Moon, Bell, LogOut, Cpu, Menu } from 'lucide-react';
 import { notificationApi } from '../../api/notificationApi';
 import { Link } from 'react-router-dom';
@@ -8,6 +10,7 @@ import { Link } from 'react-router-dom';
 export const Navbar = ({ onMenuToggle }) => {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
+  const { t } = useTranslation();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -22,12 +25,12 @@ export const Navbar = ({ onMenuToggle }) => {
   }, [user]);
 
   return (
-    <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between">
+    <header className="h-16 shrink-0 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30 px-4 sm:px-6 flex items-center justify-between shadow-xs">
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuToggle}
           className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors md:hidden"
-          title="Toggle Navigation Menu"
+          title={t('common.filter')}
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -53,13 +56,16 @@ export const Navbar = ({ onMenuToggle }) => {
           className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm hover:opacity-90 transition-opacity"
         >
           <Cpu className="w-4 h-4" />
-          <span className="hidden sm:inline">AI Copilot</span>
+          <span className="hidden sm:inline">{t('nav.copilot')}</span>
         </Link>
+
+        {/* Language Selector Dropdown */}
+        <LanguageSelector isCompact />
 
         <button
           onClick={toggleTheme}
           className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          title="Toggle Dark/Light Mode"
+          title={t('common.theme')}
         >
           {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
         </button>
@@ -67,6 +73,7 @@ export const Navbar = ({ onMenuToggle }) => {
         <Link
           to="/notifications"
           className="relative p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title={t('nav.notifications')}
         >
           <Bell className="w-5 h-5" />
           {unreadCount > 0 && (
@@ -87,7 +94,7 @@ export const Navbar = ({ onMenuToggle }) => {
           <button
             onClick={logout}
             className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
-            title="Log Out"
+            title={t('nav.logout')}
           >
             <LogOut className="w-5 h-5" />
           </button>

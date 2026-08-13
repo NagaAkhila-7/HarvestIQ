@@ -5,9 +5,11 @@ import { Input } from '../components/shared/Input';
 import { Modal } from '../components/shared/Modal';
 import { StatusBadge } from '../components/shared/StatusBadge';
 import { farmerApi } from '../api/farmerApi';
+import { useTranslation } from 'react-i18next';
 import { Sprout, Plus, User, MapPin, Award } from 'lucide-react';
 
 export const FarmersPage = () => {
+  const { t } = useTranslation();
   const [farmers, setFarmers] = useState([]);
   const [fields, setFields] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,12 +57,12 @@ export const FarmersPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Member Farmers, Farms & Fields"
-        description="Operational view of cooperative farmer membership, SLA performance ratings, crop stages, and field acreage."
+        title={t('farmers.title')}
+        description={t('farmers.description')}
         actions={
           <Button variant="primary" size="sm" onClick={() => setIsModalOpen(true)}>
             <Plus className="w-4 h-4 mr-1" />
-            Register Farmer
+            {t('farmers.addFarmer')}
           </Button>
         }
       />
@@ -81,7 +83,7 @@ export const FarmersPage = () => {
             </div>
 
             <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Farmer SLA Rating</span>
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{t('farmers.slaScore')}</span>
               <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">{f.slaScore || 92}%</span>
             </div>
           </div>
@@ -92,18 +94,18 @@ export const FarmersPage = () => {
       <div className="glass-card p-6">
         <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
           <Sprout className="w-5 h-5 text-emerald-600" />
-          <span>Active Field Acreage & Crop Stages</span>
+          <span>{t('dashboard.seasonalDemandDrivers')}</span>
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase">
               <tr>
-                <th className="p-3">Field Name</th>
-                <th className="p-3">Acreage</th>
-                <th className="p-3">Current Crop</th>
-                <th className="p-3">Growth Stage</th>
-                <th className="p-3">Expected Yield</th>
-                <th className="p-3">Risk Level</th>
+                <th className="p-3">{t('farmers.farmerName')}</th>
+                <th className="p-3">{t('farmers.acreage')}</th>
+                <th className="p-3">{t('farmers.activeCrops')}</th>
+                <th className="p-3">{t('dashboard.cropStage')}</th>
+                <th className="p-3">{t('dashboard.projectedYield')}</th>
+                <th className="p-3">{t('suppliers.status')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -122,15 +124,15 @@ export const FarmersPage = () => {
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Register Cooperative Member Farmer">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={t('farmers.addFarmer')}>
         <form onSubmit={handleCreate} className="space-y-4">
           <Input label="Farmer Code" required value={newFarmer.code} onChange={e => setNewFarmer({...newFarmer, code: e.target.value})} />
-          <Input label="Full Name" required value={newFarmer.name} onChange={e => setNewFarmer({...newFarmer, name: e.target.value})} placeholder="e.g. James Mwangi" />
-          <Input label="Phone Number" required value={newFarmer.phone} onChange={e => setNewFarmer({...newFarmer, phone: e.target.value})} placeholder="+254 722 000 111" />
+          <Input label={t('farmers.farmerName')} required value={newFarmer.name} onChange={e => setNewFarmer({...newFarmer, name: e.target.value})} placeholder="e.g. James Mwangi" />
+          <Input label={t('auth.phoneLabel')} required value={newFarmer.phone} onChange={e => setNewFarmer({...newFarmer, phone: e.target.value})} placeholder="+254 722 000 111" />
           <Input label="Sub-County Location" value={newFarmer.location} onChange={e => setNewFarmer({...newFarmer, location: e.target.value})} />
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="primary">Save Farmer Record</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('inventory.cancel')}</Button>
+            <Button type="submit" variant="primary">{t('inventory.saveRecord')}</Button>
           </div>
         </form>
       </Modal>

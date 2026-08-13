@@ -5,9 +5,11 @@ import { Input } from '../components/shared/Input';
 import { StatusBadge } from '../components/shared/StatusBadge';
 import { Modal } from '../components/shared/Modal';
 import { aiApi } from '../api/aiApi';
+import { useTranslation } from 'react-i18next';
 import { Sparkles, Check, X, Edit, ShieldAlert, Cpu, Layers } from 'lucide-react';
 
 export const RecommendationsPage = () => {
+  const { t } = useTranslation();
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRec, setSelectedRec] = useState(null);
@@ -71,22 +73,22 @@ export const RecommendationsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="AI Decision Support & Recommendations"
-        description="Review AI-generated procurement, transfer, and safety stock recommendations. Authorised humans retain final decision control."
+        title={t('dashboard.aiRecommendations')}
+        description={t('landing.aiProposesDesc')}
         actions={
           <Button variant="primary" size="sm" onClick={handleTriggerAnalysis} isLoading={loading}>
             <Sparkles className="w-4 h-4 mr-1" />
-            Run Batch AI Analysis
+            {t('dashboard.refreshMetrics')}
           </Button>
         }
       />
 
       <div className="space-y-4">
         {loading ? (
-          <div className="p-8 text-center text-slate-500">Executing AI decision support analysis...</div>
+          <div className="p-8 text-center text-slate-500">{t('common.loading')}</div>
         ) : recommendations.length === 0 ? (
           <div className="glass-card p-12 text-center text-slate-500">
-            No active AI recommendations. Click "Run Batch AI Analysis" to evaluate current telemetry.
+            {t('dashboard.noPendingRecs')}
           </div>
         ) : (
           recommendations.map(rec => (
@@ -98,27 +100,27 @@ export const RecommendationsPage = () => {
                   </span>
                   <StatusBadge status={rec.status} />
                   <span className="text-xs text-slate-400 font-semibold">
-                    Confidence: {Math.round((rec.confidenceScore || 0.9) * 100)}%
+                    {t('landing.confidence')}: {Math.round((rec.confidenceScore || 0.9) * 100)}%
                   </span>
                 </div>
 
                 <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{rec.title}</h3>
                 
                 <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                  Recommended Action: {rec.recommendedAction}
+                  {t('replenishment.recommendedAction')}: {rec.recommendedAction}
                 </div>
 
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  <span className="font-bold text-slate-900 dark:text-slate-100">AI Explanation: </span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100">{t('replenishment.aiExplanation')}: </span>
                   {rec.conciseExplanation}
                 </p>
 
                 {rec.evidence && (
                   <div className="flex flex-wrap gap-4 text-[11px] text-slate-500 pt-2 border-t border-slate-200 dark:border-slate-800">
-                    <span>On-Hand Stock: <strong>{rec.evidence.currentStock}</strong></span>
-                    <span>Forecast Demand: <strong>{rec.evidence.forecastDemand}</strong></span>
-                    <span>Lead Time: <strong>{rec.evidence.leadTimeDays} days</strong></span>
-                    <span>Financial Impact: <strong>KES {(rec.evidence.cashFlowImpact || 0).toLocaleString()}</strong></span>
+                    <span>{t('replenishment.onHand')}: <strong>{rec.evidence.currentStock}</strong></span>
+                    <span>{t('replenishment.forecastDemand')}: <strong>{rec.evidence.forecastDemand}</strong></span>
+                    <span>{t('replenishment.leadTime')}: <strong>{rec.evidence.leadTimeDays} days</strong></span>
+                    <span>{t('replenishment.financialImpact')}: <strong>KES {(rec.evidence.cashFlowImpact || 0).toLocaleString()}</strong></span>
                   </div>
                 )}
               </div>
@@ -128,7 +130,7 @@ export const RecommendationsPage = () => {
                 <div className="flex flex-row md:flex-col gap-2 justify-center shrink-0 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-700 pt-4 md:pt-0 md:pl-6">
                   <Button variant="primary" size="sm" onClick={() => openDecisionModal(rec, 'Approve')}>
                     <Check className="w-4 h-4 mr-1" />
-                    Approve
+                    {t('procurement.approve')}
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => openDecisionModal(rec, 'Override')}>
                     <Edit className="w-4 h-4 mr-1" />
@@ -136,7 +138,7 @@ export const RecommendationsPage = () => {
                   </Button>
                   <Button variant="danger" size="sm" onClick={() => openDecisionModal(rec, 'Reject')}>
                     <X className="w-4 h-4 mr-1" />
-                    Reject
+                    {t('procurement.reject')}
                   </Button>
                 </div>
               )}
@@ -159,15 +161,15 @@ export const RecommendationsPage = () => {
           )}
 
           <Input
-            label="Decision / Override Reason"
+            label={t('procurement.reason')}
             required={actionType === 'Override' || actionType === 'Reject'}
-            placeholder="State business rationale (e.g. Contract re-negotiation in progress, alternative warehouse buffer available)"
+            placeholder="State business rationale..."
             value={overrideReason}
             onChange={(e) => setOverrideReason(e.target.value)}
           />
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('inventory.cancel')}</Button>
             <Button type="submit" variant={actionType === 'Reject' ? 'danger' : 'primary'}>
               Submit {actionType} Record
             </Button>

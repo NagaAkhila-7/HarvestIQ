@@ -6,6 +6,7 @@ import { reportApi } from '../api/reportApi';
 import { aiApi } from '../api/aiApi';
 import { notificationApi } from '../api/notificationApi';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { 
   Package, 
@@ -25,6 +26,7 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } fro
 
 export const MainDashboard = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [summary, setSummary] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
@@ -64,18 +66,18 @@ export const MainDashboard = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Operational Executive Dashboard"
-        description={`Real-time agricultural demand drivers, inventory status, and AI recommendation telemetry for ${user?.role || 'FPO Team'}.`}
+        title={t('dashboard.title')}
+        description={t('dashboard.description')}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" size="sm" onClick={loadDashboardData} isLoading={loading}>
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Refresh Metrics</span>
+              <span>{t('dashboard.refreshMetrics')}</span>
             </Button>
             <Link to="/copilot">
               <Button variant="primary" size="sm">
                 <Cpu className="w-3.5 h-3.5" />
-                <span>Launch AI Copilot</span>
+                <span>{t('dashboard.launchCopilot')}</span>
               </Button>
             </Link>
           </div>
@@ -90,12 +92,12 @@ export const MainDashboard = () => {
               <AlertTriangle className="w-4 h-4" />
             </div>
             <div>
-              <span className="font-bold">{alerts.length} Active Operational Alert{alerts.length > 1 ? 's' : ''} Require Attention:</span>
+              <span className="font-bold">{alerts.length} {t('dashboard.activeAlerts')}:</span>
               <span className="ml-1 text-slate-700 dark:text-slate-300">{alerts[0]?.title} - {alerts[0]?.message}</span>
             </div>
           </div>
           <Link to="/notifications" className="font-bold text-amber-600 dark:text-amber-400 hover:underline shrink-0 flex items-center gap-1">
-            Review Alerts <ChevronRight className="w-3.5 h-3.5" />
+            {t('dashboard.reviewAlerts')} <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       )}
@@ -104,7 +106,7 @@ export const MainDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="kpi-card">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Total Inventory SKUs</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('dashboard.totalSkus')}</span>
             <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
               <Package className="w-4 h-4" />
             </div>
@@ -113,13 +115,13 @@ export const MainDashboard = () => {
             {summary?.totalItems || 0}
           </div>
           <div className="text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
-            <span>{summary?.lowStockCount || 0} items at reorder point</span>
+            <span>{summary?.lowStockCount || 0} {t('dashboard.itemsReorderPoint')}</span>
           </div>
         </div>
 
         <div className="kpi-card">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Valuation Ledger</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('dashboard.valuationLedger')}</span>
             <div className="p-2 rounded-lg bg-cyan-50 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-400">
               <DollarSign className="w-4 h-4" />
             </div>
@@ -127,12 +129,12 @@ export const MainDashboard = () => {
           <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             KES {(summary?.totalInventoryValue || 0).toLocaleString()}
           </div>
-          <div className="text-xs text-slate-500">Active stock asset valuation</div>
+          <div className="text-xs text-slate-500">{t('dashboard.activeValuation')}</div>
         </div>
 
         <div className="kpi-card">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Procurement Orders</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('dashboard.procurementOrders')}</span>
             <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950 text-teal-600 dark:text-teal-400">
               <ShoppingCart className="w-4 h-4" />
             </div>
@@ -141,13 +143,13 @@ export const MainDashboard = () => {
             {summary?.activePOs || 0}
           </div>
           <div className="text-xs text-teal-600 dark:text-teal-400 font-medium">
-            {summary?.pendingPRs || 0} Purchase Requests Pending
+            {summary?.pendingPRs || 0} {t('dashboard.prsPending')}
           </div>
         </div>
 
         <div className="kpi-card">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">AI Recommendations</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('dashboard.aiRecommendations')}</span>
             <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400">
               <Sparkles className="w-4 h-4" />
             </div>
@@ -156,7 +158,7 @@ export const MainDashboard = () => {
             {recommendations.length}
           </div>
           <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">
-            Pending Decision Support Review
+            {t('dashboard.pendingReview')}
           </div>
         </div>
       </div>
@@ -165,28 +167,28 @@ export const MainDashboard = () => {
       <div className="glass-card p-5">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
           <Sprout className="w-4 h-4 text-emerald-600" />
-          <span>Seasonal Demand Drivers</span>
+          <span>{t('dashboard.seasonalDemandDrivers')}</span>
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80">
-            <div className="text-[11px] text-slate-500">Committed Acreage</div>
+            <div className="text-[11px] text-slate-500">{t('dashboard.committedAcreage')}</div>
             <div className="text-base font-bold text-slate-900 dark:text-slate-100 mt-0.5">50 Acres</div>
-            <div className="text-[10px] text-emerald-600 font-medium mt-0.5">Registered Member Farms</div>
+            <div className="text-[10px] text-emerald-600 font-medium mt-0.5">{t('dashboard.registeredFarms')}</div>
           </div>
           <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80">
-            <div className="text-[11px] text-slate-500">Active Farmers</div>
+            <div className="text-[11px] text-slate-500">{t('dashboard.activeFarmers')}</div>
             <div className="text-base font-bold text-slate-900 dark:text-slate-100 mt-0.5">3 Farmers</div>
-            <div className="text-[10px] text-slate-500 font-medium mt-0.5">Contracted Cooperatives</div>
+            <div className="text-[10px] text-slate-500 font-medium mt-0.5">{t('dashboard.contractedCooperatives')}</div>
           </div>
           <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80">
-            <div className="text-[11px] text-slate-500">Crop Stage</div>
+            <div className="text-[11px] text-slate-500">{t('dashboard.cropStage')}</div>
             <div className="text-base font-bold text-slate-900 dark:text-slate-100 mt-0.5">Vegetative</div>
-            <div className="text-[10px] text-amber-600 font-medium mt-0.5">Fertilizer Peak Window</div>
+            <div className="text-[10px] text-amber-600 font-medium mt-0.5">{t('dashboard.fertilizerPeak')}</div>
           </div>
           <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80">
-            <div className="text-[11px] text-slate-500">Projected Yield</div>
+            <div className="text-[11px] text-slate-500">{t('dashboard.projectedYield')}</div>
             <div className="text-base font-bold text-slate-900 dark:text-slate-100 mt-0.5">92,000 kg</div>
-            <div className="text-[10px] text-slate-500 font-medium mt-0.5">Grade A Production</div>
+            <div className="text-[10px] text-slate-500 font-medium mt-0.5">{t('dashboard.gradeA')}</div>
           </div>
         </div>
       </div>
@@ -196,11 +198,11 @@ export const MainDashboard = () => {
         <div className="glass-card p-5 lg:col-span-2 flex flex-col justify-between space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Demand Trajectory & Replenishment Balance</h3>
-              <p className="text-xs text-slate-500">6-Month historical demand vs actual stock fulfillment</p>
+              <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">{t('dashboard.demandTrajectory')}</h3>
+              <p className="text-xs text-slate-500">{t('dashboard.demandTrajectorySubtitle')}</p>
             </div>
             <Link to="/forecasting" className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
-              Forecast Analytics →
+              {t('dashboard.forecastAnalytics')} →
             </Link>
           </div>
           <div className="h-64 w-full pt-2">
@@ -223,14 +225,14 @@ export const MainDashboard = () => {
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
               <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-purple-500" />
-                <span>AI Recommendations</span>
+                <span>{t('dashboard.aiRecommendations')}</span>
               </h3>
               <span className="text-[11px] font-mono text-purple-600 dark:text-purple-400 font-bold">{recommendations.length} Pending</span>
             </div>
 
             <div className="space-y-3 mt-3">
               {recommendations.length === 0 ? (
-                <div className="text-xs text-slate-500 py-8 text-center">No pending AI recommendations.</div>
+                <div className="text-xs text-slate-500 py-8 text-center">{t('dashboard.noPendingRecs')}</div>
               ) : (
                 recommendations.slice(0, 3).map((rec) => (
                   <div key={rec._id} className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
@@ -248,7 +250,7 @@ export const MainDashboard = () => {
 
           <Link to="/recommendations">
             <Button variant="outline" size="sm" className="w-full">
-              Open Decision Workbench →
+              {t('dashboard.decisionWorkbench')} →
             </Button>
           </Link>
         </div>

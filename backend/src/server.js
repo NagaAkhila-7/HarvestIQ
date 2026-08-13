@@ -44,17 +44,18 @@ const corsOptions = {
       origin.endsWith('.vercel.app');
 
     if (isAllowed) {
-      callback(null, true);
-    } else {
-      callback(null, false);
+      return callback(null, true);
     }
+    
+    return callback(new Error(`CORS policy does not allow access from origin: ${origin}`));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-seed-secret']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-seed-secret'],
+  optionsSuccessStatus: 200
 };
 
-// Enable CORS for all routes and handle preflight OPTIONS requests
+// Enable CORS for all routes and handle preflight OPTIONS requests across all API paths
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 

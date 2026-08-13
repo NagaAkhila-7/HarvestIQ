@@ -3,9 +3,11 @@ import { PageHeader } from '../components/shared/PageHeader';
 import { Button } from '../components/shared/Button';
 import { StatusBadge } from '../components/shared/StatusBadge';
 import { notificationApi } from '../api/notificationApi';
+import { useTranslation } from 'react-i18next';
 import { Bell, CheckCheck, AlertCircle, ShieldAlert } from 'lucide-react';
 
 export const NotificationsPage = () => {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,12 +44,12 @@ export const NotificationsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Notifications & Operational Alerts"
-        description="System alerts, stockout warnings, AI recommendation notifications, and purchase order approvals."
+        title={t('notifications.title')}
+        description={t('notifications.description')}
         actions={
           <Button variant="outline" size="sm" onClick={handleMarkAllRead}>
             <CheckCheck className="w-4 h-4 mr-1" />
-            Mark All Read
+            {t('notifications.markAllRead')}
           </Button>
         }
       />
@@ -57,12 +59,12 @@ export const NotificationsPage = () => {
         <div className="glass-card p-6">
           <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base mb-4 flex items-center gap-2">
             <Bell className="w-5 h-5 text-emerald-600" />
-            <span>Assigned System Notifications</span>
+            <span>{t('notifications.title')}</span>
           </h3>
 
           <div className="space-y-3 max-h-[500px] overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="text-xs text-slate-500 py-8 text-center">No notifications.</div>
+              <div className="text-xs text-slate-500 py-8 text-center">{t('notifications.noNotifications')}</div>
             ) : (
               notifications.map(n => (
                 <div
@@ -88,12 +90,12 @@ export const NotificationsPage = () => {
         <div className="glass-card p-6">
           <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base mb-4 flex items-center gap-2">
             <ShieldAlert className="w-5 h-5 text-amber-500" />
-            <span>Active Supply Chain Exceptions</span>
+            <span>{t('dashboard.activeAlerts')}</span>
           </h3>
 
           <div className="space-y-3 max-h-[500px] overflow-y-auto">
             {alerts.length === 0 ? (
-              <div className="text-xs text-slate-500 py-8 text-center">No active alerts.</div>
+              <div className="text-xs text-slate-500 py-8 text-center">{t('notifications.noNotifications')}</div>
             ) : (
               alerts.map(a => (
                 <div key={a._id} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs">

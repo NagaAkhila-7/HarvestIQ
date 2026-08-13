@@ -7,9 +7,11 @@ import { StatusBadge } from '../components/shared/StatusBadge';
 import { Modal } from '../components/shared/Modal';
 import { procurementApi } from '../api/procurementApi';
 import { inventoryApi } from '../api/inventoryApi';
+import { useTranslation } from 'react-i18next';
 import { PackageCheck, CheckCircle, AlertTriangle } from 'lucide-react';
 
 export const GoodsReceivingPage = () => {
+  const { t } = useTranslation();
   const [receipts, setReceipts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -81,12 +83,12 @@ export const GoodsReceivingPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Warehouse Goods Receiving (GRN)"
-        description="Verify supplier deliveries against issued POs, record batch lot numbers, perform quality grading, and auto-update stock balances."
+        title={t('receiving.title')}
+        description={t('receiving.description')}
         actions={
           <Button variant="primary" size="sm" onClick={() => setIsModalOpen(true)}>
             <PackageCheck className="w-4 h-4 mr-1" />
-            Receive Delivery (GRN)
+            {t('receiving.submitReceipt')}
           </Button>
         }
       />
@@ -96,18 +98,18 @@ export const GoodsReceivingPage = () => {
           <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase">
             <tr>
               <th className="p-4">GRN Number</th>
-              <th className="p-4">PO Reference</th>
-              <th className="p-4">Supplier</th>
-              <th className="p-4">Received By</th>
-              <th className="p-4">Received Date</th>
-              <th className="p-4">Status</th>
+              <th className="p-4">{t('procurement.poNumber')}</th>
+              <th className="p-4">{t('procurement.supplier')}</th>
+              <th className="p-4">{t('procurement.requestedBy')}</th>
+              <th className="p-4">{t('audit.timestamp')}</th>
+              <th className="p-4">{t('procurement.status')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
             {loading ? (
-              <tr><td colSpan={6} className="p-8 text-center text-slate-500">Loading receiving notes...</td></tr>
+              <tr><td colSpan={6} className="p-8 text-center text-slate-500">{t('common.loading')}</td></tr>
             ) : receipts.length === 0 ? (
-              <tr><td colSpan={6} className="p-8 text-center text-slate-500">No goods receiving records found.</td></tr>
+              <tr><td colSpan={6} className="p-8 text-center text-slate-500">{t('inventory.noItems')}</td></tr>
             ) : (
               receipts.map(rec => (
                 <tr key={rec._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
@@ -124,10 +126,10 @@ export const GoodsReceivingPage = () => {
         </table>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Process Goods Receipt Note (GRN)">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={t('receiving.title')}>
         <form onSubmit={handleReceive} className="space-y-4">
           <div className="flex flex-col gap-1.5 w-full">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Select Purchase Order</label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t('receiving.poNumber')}</label>
             <select
               value={selectedPO}
               onChange={e => setSelectedPO(e.target.value)}
@@ -143,14 +145,14 @@ export const GoodsReceivingPage = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Received Quantity"
+              label={t('receiving.receivedQty')}
               type="number"
               required
               value={receivingData.receivedQuantity}
               onChange={e => setReceivingData({...receivingData, receivedQuantity: Number(e.target.value)})}
             />
             <Input
-              label="Assigned Lot / Batch Number"
+              label={t('receiving.lotNumber')}
               required
               value={receivingData.lotNumber}
               onChange={e => setReceivingData({...receivingData, lotNumber: e.target.value})}
@@ -166,7 +168,7 @@ export const GoodsReceivingPage = () => {
               onChange={e => setReceivingData({...receivingData, expiryDate: e.target.value})}
             />
             <Select
-              label="Quality Inspection Status"
+              label={t('receiving.qualityStatus')}
               value={receivingData.qualityGrade}
               onChange={e => setReceivingData({...receivingData, qualityGrade: e.target.value})}
               options={[
@@ -179,14 +181,14 @@ export const GoodsReceivingPage = () => {
           </div>
 
           <Input
-            label="Receiving Notes / Inspection Comments"
+            label={t('procurement.reason')}
             value={receivingData.notes}
             onChange={e => setReceivingData({...receivingData, notes: e.target.value})}
           />
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="primary">Confirm Goods Receipt</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('inventory.cancel')}</Button>
+            <Button type="submit" variant="primary">{t('receiving.submitReceipt')}</Button>
           </div>
         </form>
       </Modal>

@@ -4,9 +4,11 @@ import { Button } from '../components/shared/Button';
 import { Input } from '../components/shared/Input';
 import { Select } from '../components/shared/Select';
 import { settingsApi } from '../api/settingsApi';
+import { useTranslation } from 'react-i18next';
 import { Settings, Save, CheckCircle } from 'lucide-react';
 
 export const SettingsPage = () => {
+  const { t } = useTranslation();
   const [org, setOrg] = useState({
     name: 'Rift Valley Farmers Cooperative Society (FPO)',
     region: 'Kenya Central Rift',
@@ -49,20 +51,20 @@ export const SettingsPage = () => {
   return (
     <div className="space-y-6 max-w-4xl">
       <PageHeader
-        title="System Configurations & Parameters"
-        description="Master parameters, replenishment safety stock formulas, Gemini AI model selections, and organizational defaults."
+        title={t('settings.title')}
+        description={t('settings.description')}
       />
 
       {saved && (
         <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2">
           <CheckCircle className="w-4 h-4" />
-          <span>System configuration parameters updated successfully!</span>
+          <span>{t('common.success')}!</span>
         </div>
       )}
 
       <form onSubmit={handleSave} className="glass-card p-6 space-y-6">
         <div className="space-y-4">
-          <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wider">Organisation Parameters</h3>
+          <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wider">{t('nav.administration')}</h3>
           <div className="grid grid-cols-2 gap-4">
             <Input label="Organisation Name" value={org.name} onChange={e => setOrg({...org, name: e.target.value})} />
             <Input label="Agricultural Region" value={org.region} onChange={e => setOrg({...org, region: e.target.value})} />
@@ -70,7 +72,7 @@ export const SettingsPage = () => {
         </div>
 
         <div className="space-y-4 pt-6 border-t border-slate-200 dark:border-slate-800">
-          <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wider">Replenishment Engine Parameters</h3>
+          <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wider">{t('replenishment.title')}</h3>
           <div className="grid grid-cols-2 gap-4">
             <Select
               label="Safety Stock Formula"
@@ -82,7 +84,7 @@ export const SettingsPage = () => {
               ]}
             />
             <Select
-              label="Default SLA Target"
+              label={t('replenishment.targetServiceLevel')}
               value={String(org.settings?.defaultTargetServiceLevel || 0.95)}
               onChange={e => setOrg({...org, settings: {...org.settings, defaultTargetServiceLevel: Number(e.target.value)}})}
               options={[
@@ -94,23 +96,10 @@ export const SettingsPage = () => {
           </div>
         </div>
 
-        <div className="space-y-4 pt-6 border-t border-slate-200 dark:border-slate-800">
-          <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wider">Google Gemini AI Engine Settings</h3>
-          <Select
-            label="Gemini LLM Model Version"
-            value={org.settings?.aiModel || 'gemini-2.5-flash'}
-            onChange={e => setOrg({...org, settings: {...org.settings, aiModel: e.target.value}})}
-            options={[
-              { label: 'gemini-2.5-flash (Fast Operational Reasoning)', value: 'gemini-2.5-flash' },
-              { label: 'gemini-1.5-pro (Complex Analytics Reasoning)', value: 'gemini-1.5-pro' }
-            ]}
-          />
-        </div>
-
         <div className="flex justify-end pt-4 border-t border-slate-200 dark:border-slate-800">
           <Button type="submit" variant="primary">
             <Save className="w-4 h-4 mr-1" />
-            Save Configuration Parameters
+            {t('settings.saveSettings')}
           </Button>
         </div>
       </form>

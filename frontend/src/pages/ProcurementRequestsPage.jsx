@@ -6,9 +6,11 @@ import { Modal } from '../components/shared/Modal';
 import { Input } from '../components/shared/Input';
 import { procurementApi } from '../api/procurementApi';
 import { inventoryApi } from '../api/inventoryApi';
+import { useTranslation } from 'react-i18next';
 import { Plus, ShoppingCart, CheckCircle, XCircle } from 'lucide-react';
 
 export const ProcurementRequestsPage = () => {
+  const { t } = useTranslation();
   const [requests, setRequests] = useState([]);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,12 +81,12 @@ export const ProcurementRequestsPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Purchase Requests (PR)"
+        title={t('procurement.prTitle')}
         description="Internal requisition workflow for agricultural inputs, safety stock buffers, and field supplies."
         actions={
           <Button variant="primary" size="sm" onClick={() => setIsModalOpen(true)}>
             <Plus className="w-4 h-4 mr-1" />
-            Create Purchase Request
+            {t('replenishment.generatePr')}
           </Button>
         }
       />
@@ -93,20 +95,20 @@ export const ProcurementRequestsPage = () => {
         <table className="w-full text-left text-xs">
           <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase">
             <tr>
-              <th className="p-4">PR Number</th>
-              <th className="p-4">Requested By</th>
-              <th className="p-4">Items / Quantity</th>
-              <th className="p-4">Estimated Total</th>
-              <th className="p-4">Reason / Notes</th>
-              <th className="p-4">Status</th>
-              <th className="p-4 text-right">Review Action</th>
+              <th className="p-4">{t('procurement.requestNumber')}</th>
+              <th className="p-4">{t('procurement.requestedBy')}</th>
+              <th className="p-4">{t('inventory.sku')}</th>
+              <th className="p-4">{t('procurement.totalCost')}</th>
+              <th className="p-4">{t('procurement.reason')}</th>
+              <th className="p-4">{t('procurement.status')}</th>
+              <th className="p-4 text-right">{t('inventory.actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
             {loading ? (
-              <tr><td colSpan={7} className="p-8 text-center text-slate-500">Loading purchase requests...</td></tr>
+              <tr><td colSpan={7} className="p-8 text-center text-slate-500">{t('common.loading')}</td></tr>
             ) : requests.length === 0 ? (
-              <tr><td colSpan={7} className="p-8 text-center text-slate-500">No purchase requests registered.</td></tr>
+              <tr><td colSpan={7} className="p-8 text-center text-slate-500">{t('inventory.noItems')}</td></tr>
             ) : (
               requests.map(pr => (
                 <tr key={pr._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
@@ -124,10 +126,10 @@ export const ProcurementRequestsPage = () => {
                     {pr.status === 'Pending Review' && (
                       <>
                         <Button size="sm" variant="primary" onClick={() => handleReviewPR(pr._id, 'Approved')}>
-                          Approve
+                          {t('procurement.approve')}
                         </Button>
                         <Button size="sm" variant="danger" onClick={() => handleReviewPR(pr._id, 'Rejected')}>
-                          Reject
+                          {t('procurement.reject')}
                         </Button>
                       </>
                     )}
@@ -139,10 +141,10 @@ export const ProcurementRequestsPage = () => {
         </table>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Purchase Request">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={t('replenishment.generatePr')}>
         <form onSubmit={handleCreatePR} className="space-y-4">
           <div className="flex flex-col gap-1.5 w-full">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Target Item SKU</label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t('inventory.skuCode')}</label>
             <select
               value={newRequest.itemId}
               onChange={e => setNewRequest({...newRequest, itemId: e.target.value})}
@@ -157,7 +159,7 @@ export const ProcurementRequestsPage = () => {
           </div>
 
           <Input
-            label="Required Quantity"
+            label={t('inventory.currentStock')}
             type="number"
             required
             value={newRequest.quantity}
@@ -165,15 +167,15 @@ export const ProcurementRequestsPage = () => {
           />
 
           <Input
-            label="Justification Reason"
+            label={t('procurement.reason')}
             required
             value={newRequest.reason}
             onChange={e => setNewRequest({...newRequest, reason: e.target.value})}
           />
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="primary">Submit PR</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('inventory.cancel')}</Button>
+            <Button type="submit" variant="primary">{t('common.submit')}</Button>
           </div>
         </form>
       </Modal>

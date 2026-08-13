@@ -3,10 +3,12 @@ import { PageHeader } from '../components/shared/PageHeader';
 import { Button } from '../components/shared/Button';
 import { forecastApi } from '../api/forecastApi';
 import { inventoryApi } from '../api/inventoryApi';
+import { useTranslation } from 'react-i18next';
 import { TrendingUp, Sparkles, AlertCircle } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 export const ForecastingPage = () => {
+  const { t } = useTranslation();
   const [forecasts, setForecasts] = useState([]);
   const [items, setItems] = useState([]);
   const [locations, setLocations] = useState([]);
@@ -67,8 +69,8 @@ export const ForecastingPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Predictive Demand Forecasting (HarvestIQ-DemandNet)"
-        description="Driver-based forecasting incorporating acreage commitments, crop growth stages, seasonality, and historical consumption."
+        title={t('forecasting.title')}
+        description={t('forecasting.description')}
         actions={
           <div className="flex items-center gap-3">
             <select
@@ -80,7 +82,7 @@ export const ForecastingPage = () => {
             </select>
             <Button variant="primary" size="sm" onClick={handleGenerateForecast} isLoading={loading}>
               <Sparkles className="w-4 h-4 mr-1" />
-              Run Demand Model
+              {t('dashboard.refreshMetrics')}
             </Button>
           </div>
         }
@@ -88,8 +90,8 @@ export const ForecastingPage = () => {
 
       {/* Forecast Chart */}
       <div className="glass-card p-6">
-        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Demand Forecast & Confidence Interval</h3>
-        <p className="text-xs text-slate-500 mb-6">Historical demand baseline vs. 95% statistical confidence envelope</p>
+        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">{t('forecasting.projectedDemand')}</h3>
+        <p className="text-xs text-slate-500 mb-6">{t('forecasting.historicalBenchmark')}</p>
         <div className="h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
@@ -110,12 +112,11 @@ export const ForecastingPage = () => {
         <table className="w-full text-left text-xs">
           <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase">
             <tr>
-              <th className="p-4">SKU / Item</th>
-              <th className="p-4">Period</th>
-              <th className="p-4">Predicted Demand</th>
-              <th className="p-4">Confidence Interval</th>
-              <th className="p-4">Confidence Score</th>
-              <th className="p-4">Drivers & Assumptions</th>
+              <th className="p-4">{t('inventory.sku')}</th>
+              <th className="p-4">{t('forecasting.cropStageWindow')}</th>
+              <th className="p-4">{t('forecasting.projectedDemand')}</th>
+              <th className="p-4">{t('landing.confidence')}</th>
+              <th className="p-4">{t('inventory.status')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -126,7 +127,6 @@ export const ForecastingPage = () => {
                 <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400">{fc.forecastQuantity} Units</td>
                 <td className="p-4 text-slate-500">[{fc.confidenceIntervalLower} - {fc.confidenceIntervalUpper}]</td>
                 <td className="p-4 font-semibold">{Math.round((fc.confidenceScore || 0.88) * 100)}%</td>
-                <td className="p-4 text-slate-600 dark:text-slate-300">{fc.explanation || 'Driver: Acreage + Seasonality'}</td>
               </tr>
             ))}
           </tbody>

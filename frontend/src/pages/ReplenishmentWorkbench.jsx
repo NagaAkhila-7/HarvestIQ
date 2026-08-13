@@ -6,10 +6,12 @@ import { inventoryApi } from '../api/inventoryApi';
 import { aiApi } from '../api/aiApi';
 import { procurementApi } from '../api/procurementApi';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { Sparkles, Layers, AlertCircle, ShoppingCart, CheckCircle, ArrowRight } from 'lucide-react';
 
 export const ReplenishmentWorkbench = () => {
   const { hasRole } = useAuth();
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,12 +69,12 @@ export const ReplenishmentWorkbench = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Replenishment & Purchase Planning Workbench"
-        description="Automated stockout risk identification, reorder calculation, and purchase allocation planning."
+        title={t('replenishment.title')}
+        description={t('replenishment.description')}
         actions={
           <Button variant="primary" size="sm" onClick={loadData} isLoading={loading}>
             <Sparkles className="w-4 h-4 mr-1" />
-            Refresh Calculation Engine
+            {t('dashboard.refreshMetrics')}
           </Button>
         }
       />
@@ -82,18 +84,18 @@ export const ReplenishmentWorkbench = () => {
         <div className="glass-card p-5">
           <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-rose-500" />
-            <span>Items Requiring Immediate Replenishment ({lowStockItems.length})</span>
+            <span>{t('replenishment.recommendationsCount')} ({lowStockItems.length})</span>
           </h2>
           <div className="space-y-3 max-h-80 overflow-y-auto">
             {lowStockItems.length === 0 ? (
-              <div className="text-xs text-slate-500 p-6 text-center">All SKUs are operating within normal stock parameters.</div>
+              <div className="text-xs text-slate-500 p-6 text-center">{t('inventory.noItems')}</div>
             ) : (
               lowStockItems.map(item => (
                 <div key={item._id} className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3 text-xs">
                   <div>
                     <div className="font-bold text-slate-900 dark:text-slate-100">{item.name}</div>
                     <div className="text-[11px] text-slate-500 mt-0.5">
-                      On-Hand: <span className="font-bold text-rose-600 dark:text-rose-400">{item.currentStock} {item.unit}</span> | Reorder Threshold: {item.reorderPoint} {item.unit}
+                      {t('replenishment.onHand')}: <span className="font-bold text-rose-600 dark:text-rose-400">{item.currentStock} {item.unit}</span> | {t('replenishment.reorderThreshold')}: {item.reorderPoint} {item.unit}
                     </div>
                   </div>
                   {canCreatePR && (
@@ -103,7 +105,7 @@ export const ReplenishmentWorkbench = () => {
                       onClick={() => handleCreatePRFromItem(item)}
                       isLoading={submittingId === item._id}
                     >
-                      Generate PR
+                      {t('replenishment.generatePr')}
                     </Button>
                   )}
                 </div>
@@ -116,11 +118,11 @@ export const ReplenishmentWorkbench = () => {
         <div className="glass-card p-5">
           <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-emerald-500" />
-            <span>AI Decision Directives</span>
+            <span>{t('dashboard.aiRecommendations')}</span>
           </h2>
           <div className="space-y-3 max-h-80 overflow-y-auto">
             {recommendations.length === 0 ? (
-              <div className="text-xs text-slate-500 p-6 text-center">No pending AI recommendations.</div>
+              <div className="text-xs text-slate-500 p-6 text-center">{t('dashboard.noPendingRecs')}</div>
             ) : (
               recommendations.map(rec => (
                 <div key={rec._id} className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs space-y-1">

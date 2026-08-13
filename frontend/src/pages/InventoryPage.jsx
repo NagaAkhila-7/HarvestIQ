@@ -7,11 +7,13 @@ import { StatusBadge } from '../components/shared/StatusBadge';
 import { Modal } from '../components/shared/Modal';
 import { inventoryApi } from '../api/inventoryApi';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Plus, Search, Filter, Package, Edit, Trash2, ArrowUpRight } from 'lucide-react';
 
 export const InventoryPage = () => {
   const { hasRole } = useAuth();
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -132,13 +134,13 @@ export const InventoryPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Inventory Items & Stock Balances"
-        description="Comprehensive SKU management, safety stock thresholds, and location stock balances."
+        title={t('inventory.title')}
+        description={t('inventory.description')}
         actions={
           canManageInventory ? (
             <Button variant="primary" size="sm" onClick={openCreateModal}>
               <Plus className="w-4 h-4 mr-1" />
-              Add New Item
+              {t('inventory.addItem')}
             </Button>
           ) : null
         }
@@ -150,7 +152,7 @@ export const InventoryPage = () => {
           <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
           <input
             type="text"
-            placeholder="Search SKU or Item Name..."
+            placeholder={t('inventory.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -163,7 +165,7 @@ export const InventoryPage = () => {
             onChange={(e) => setTypeFilter(e.target.value)}
             className="px-3 py-2 text-xs rounded-lg border bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="">All Categories / Types</option>
+            <option value="">{t('inventory.allCategories')}</option>
             <option value="Seeds">Seeds</option>
             <option value="Fertilisers">Fertilisers</option>
             <option value="Pesticides">Pesticides</option>
@@ -180,24 +182,24 @@ export const InventoryPage = () => {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="p-4">SKU / Item Name</th>
-                <th className="p-4">Category</th>
-                <th className="p-4">Current Stock</th>
-                <th className="p-4">Safety Stock</th>
-                <th className="p-4">Reorder Point</th>
-                <th className="p-4">Unit Cost</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4">{t('inventory.sku')}</th>
+                <th className="p-4">{t('inventory.category')}</th>
+                <th className="p-4">{t('inventory.currentStock')}</th>
+                <th className="p-4">{t('inventory.safetyStock')}</th>
+                <th className="p-4">{t('inventory.reorderPoint')}</th>
+                <th className="p-4">{t('inventory.unitCost')}</th>
+                <th className="p-4">{t('inventory.status')}</th>
+                <th className="p-4 text-right">{t('inventory.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-slate-500">Loading inventory items...</td>
+                  <td colSpan={8} className="p-8 text-center text-slate-500">{t('inventory.loadingItems')}</td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-slate-500">No items match the filter criteria.</td>
+                  <td colSpan={8} className="p-8 text-center text-slate-500">{t('inventory.noItems')}</td>
                 </tr>
               ) : (
                 items.map((item) => (
@@ -220,17 +222,17 @@ export const InventoryPage = () => {
                     </td>
                     <td className="p-4 text-right space-x-1.5">
                       <Link to={`/inventory/items/${item._id}`}>
-                        <Button variant="outline" size="sm" title="View Detail">
-                          Details
+                        <Button variant="outline" size="sm" title={t('inventory.details')}>
+                          {t('inventory.details')}
                           <ArrowUpRight className="w-3 h-3 ml-1" />
                         </Button>
                       </Link>
                       {canManageInventory && (
                         <>
-                          <Button variant="outline" size="sm" onClick={() => openEditModal(item)} title="Edit SKU">
+                          <Button variant="outline" size="sm" onClick={() => openEditModal(item)} title={t('inventory.editSku')}>
                             <Edit className="w-3.5 h-3.5" />
                           </Button>
-                          <Button variant="danger" size="sm" onClick={() => confirmDelete(item)} title="Delete SKU">
+                          <Button variant="danger" size="sm" onClick={() => confirmDelete(item)} title={t('inventory.deleteSku')}>
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         </>
@@ -245,16 +247,16 @@ export const InventoryPage = () => {
       </div>
 
       {/* New / Edit Item Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingItem ? "Edit Inventory Item" : "Register New Inventory Item"}>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingItem ? t('inventory.editItem') : t('inventory.registerItem')}>
         <form onSubmit={handleSaveItem} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <Input label="SKU Code" required value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="e.g. SEED-MAIZE-H614" />
-            <Input label="Item Name" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Hybrid Maize Seed 25kg" />
+            <Input label={t('inventory.skuCode')} required value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="e.g. SEED-MAIZE-H614" />
+            <Input label={t('inventory.itemName')} required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Hybrid Maize Seed 25kg" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <Select
-              label="Item Category Type"
+              label={t('inventory.categoryType')}
               value={formData.type}
               onChange={e => setFormData({...formData, type: e.target.value})}
               options={[
@@ -267,7 +269,7 @@ export const InventoryPage = () => {
               ]}
             />
             <Select
-              label="Unit of Measure"
+              label={t('inventory.unitOfMeasure')}
               value={formData.unit}
               onChange={e => setFormData({...formData, unit: e.target.value})}
               options={[
@@ -280,37 +282,37 @@ export const InventoryPage = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Unit Cost (KES)" type="number" required value={formData.unitCost} onChange={e => setFormData({...formData, unitCost: Number(e.target.value)})} />
-            <Input label="Unit Price (KES)" type="number" required value={formData.unitPrice} onChange={e => setFormData({...formData, unitPrice: Number(e.target.value)})} />
+            <Input label={t('inventory.unitCost')} type="number" required value={formData.unitCost} onChange={e => setFormData({...formData, unitCost: Number(e.target.value)})} />
+            <Input label={t('inventory.unitPrice')} type="number" required value={formData.unitPrice} onChange={e => setFormData({...formData, unitPrice: Number(e.target.value)})} />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <Input label="Reorder Point" type="number" value={formData.reorderPoint} onChange={e => setFormData({...formData, reorderPoint: Number(e.target.value)})} />
-            <Input label="Safety Stock" type="number" value={formData.safetyStock} onChange={e => setFormData({...formData, safetyStock: Number(e.target.value)})} />
-            <Input label="Lead Time (Days)" type="number" value={formData.leadTimeDays} onChange={e => setFormData({...formData, leadTimeDays: Number(e.target.value)})} />
+            <Input label={t('inventory.reorderPoint')} type="number" value={formData.reorderPoint} onChange={e => setFormData({...formData, reorderPoint: Number(e.target.value)})} />
+            <Input label={t('inventory.safetyStock')} type="number" value={formData.safetyStock} onChange={e => setFormData({...formData, safetyStock: Number(e.target.value)})} />
+            <Input label={t('inventory.leadTimeDays')} type="number" value={formData.leadTimeDays} onChange={e => setFormData({...formData, leadTimeDays: Number(e.target.value)})} />
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('inventory.cancel')}</Button>
             <Button type="submit" variant="primary">
-              {editingItem ? 'Save Changes' : 'Save SKU Record'}
+              {editingItem ? t('inventory.saveChanges') : t('inventory.saveRecord')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title="Confirm Delete SKU">
+      <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title={t('inventory.confirmDelete')}>
         <div className="space-y-4">
           <p className="text-sm text-slate-700 dark:text-slate-300">
-            Are you sure you want to delete SKU <strong>{deletingItem?.name}</strong> ({deletingItem?.sku})?
+            {t('inventory.deleteWarning')} <strong>{deletingItem?.name}</strong> ({deletingItem?.sku})?
           </p>
           <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs">
-            ⚠️ This will soft-delete the item record and retain movement history for audit log integrity.
+            ⚠️ {t('inventory.deleteNotice')}
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <Button type="button" variant="outline" onClick={() => setIsDeleteModalOpen(false)}>Cancel</Button>
-            <Button type="button" variant="danger" onClick={handleDeleteItem}>Delete SKU</Button>
+            <Button type="button" variant="outline" onClick={() => setIsDeleteModalOpen(false)}>{t('inventory.cancel')}</Button>
+            <Button type="button" variant="danger" onClick={handleDeleteItem}>{t('inventory.deleteSku')}</Button>
           </div>
         </div>
       </Modal>

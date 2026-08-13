@@ -6,9 +6,11 @@ import { Select } from '../components/shared/Select';
 import { StatusBadge } from '../components/shared/StatusBadge';
 import { Modal } from '../components/shared/Modal';
 import { userApi } from '../api/userApi';
+import { useTranslation } from 'react-i18next';
 import { Plus, Users, Shield } from 'lucide-react';
 
 export const UsersPage = () => {
+  const { t } = useTranslation();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,12 +62,12 @@ export const UsersPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="User & Role Management (RBAC)"
-        description="Enforce strict role-based access control, tenant isolation, and account authorization."
+        title={t('users.title')}
+        description={t('users.description')}
         actions={
           <Button variant="primary" size="sm" onClick={() => setIsModalOpen(true)}>
             <Plus className="w-4 h-4 mr-1" />
-            Create User Account
+            {t('users.addUser')}
           </Button>
         }
       />
@@ -74,17 +76,17 @@ export const UsersPage = () => {
         <table className="w-full text-left text-xs">
           <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase">
             <tr>
-              <th className="p-4">Name / Email</th>
-              <th className="p-4">Assigned Role</th>
-              <th className="p-4">Phone</th>
-              <th className="p-4">Last Login</th>
-              <th className="p-4">Account Status</th>
-              <th className="p-4 text-right">Actions</th>
+              <th className="p-4">{t('auth.fullName')} / {t('users.email')}</th>
+              <th className="p-4">{t('users.role')}</th>
+              <th className="p-4">{t('auth.phoneLabel')}</th>
+              <th className="p-4">{t('audit.timestamp')}</th>
+              <th className="p-4">{t('users.status')}</th>
+              <th className="p-4 text-right">{t('inventory.actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
             {loading ? (
-              <tr><td colSpan={6} className="p-8 text-center text-slate-500">Loading user directory...</td></tr>
+              <tr><td colSpan={6} className="p-8 text-center text-slate-500">{t('common.loading')}</td></tr>
             ) : (
               users.map(u => (
                 <tr key={u._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
@@ -98,7 +100,7 @@ export const UsersPage = () => {
                   <td className="p-4"><StatusBadge status={u.isActive ? 'Active' : 'Inactive'} /></td>
                   <td className="p-4 text-right">
                     <Button size="sm" variant="outline" onClick={() => handleToggleStatus(u)}>
-                      {u.isActive ? 'Deactivate' : 'Activate'}
+                      {u.isActive ? t('status.inactive') : t('status.active')}
                     </Button>
                   </td>
                 </tr>
@@ -108,13 +110,13 @@ export const UsersPage = () => {
         </table>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Authorized User Account">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={t('users.addUser')}>
         <form onSubmit={handleCreateUser} className="space-y-4">
-          <Input label="Full Name" required value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} placeholder="e.g. Samuel Kiptoo" />
-          <Input label="Email Address" type="email" required value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} placeholder="samuel@harvestiq.org" />
-          <Input label="Initial Password" type="password" required value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} />
+          <Input label={t('auth.fullName')} required value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} placeholder="e.g. Samuel Kiptoo" />
+          <Input label={t('auth.emailLabel')} type="email" required value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} placeholder="samuel@harvestiq.org" />
+          <Input label={t('auth.passwordLabel')} type="password" required value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} />
           <Select
-            label="Assigned System Role"
+            label={t('users.role')}
             value={newUser.role}
             onChange={e => setNewUser({...newUser, role: e.target.value})}
             options={[
@@ -127,8 +129,8 @@ export const UsersPage = () => {
             ]}
           />
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="primary">Create User</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('inventory.cancel')}</Button>
+            <Button type="submit" variant="primary">{t('inventory.saveRecord')}</Button>
           </div>
         </form>
       </Modal>

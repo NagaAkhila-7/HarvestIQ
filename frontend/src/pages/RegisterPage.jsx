@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
+import { LanguageSelector } from '../components/shared/LanguageSelector';
 import { Input } from '../components/shared/Input';
 import { Select } from '../components/shared/Select';
 import { Button } from '../components/shared/Button';
@@ -11,6 +13,7 @@ export const RegisterPage = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
   const { isDark, toggleTheme } = useTheme();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -84,19 +87,22 @@ export const RegisterPage = () => {
           <div className="p-2 rounded-xl bg-emerald-600 text-white font-black text-lg">HIQ</div>
           <span className="text-lg font-black text-white group-hover:text-emerald-400 transition-colors">HarvestIQ</span>
         </Link>
-        <button
-          onClick={toggleTheme}
-          className="p-2 text-slate-400 hover:text-slate-200 rounded-lg hover:bg-slate-800 transition-colors"
-          title="Toggle Theme"
-        >
-          {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <LanguageSelector isCompact />
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-slate-400 hover:text-slate-200 rounded-lg hover:bg-slate-800 transition-colors"
+            title={t('common.theme')}
+          >
+            {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       <div className="w-full max-w-md bg-slate-800/90 border border-slate-700/80 rounded-2xl p-8 shadow-2xl backdrop-blur-md mx-auto my-auto">
         <div className="flex flex-col items-center mb-6 text-center">
-          <h1 className="text-2xl font-black text-white">Create HarvestIQ Account</h1>
-          <p className="text-xs text-slate-400 mt-1">Register for FPO Agricultural Demand & Inventory Portal</p>
+          <h1 className="text-2xl font-black text-white">{t('auth.registerTitle')}</h1>
+          <p className="text-xs text-slate-400 mt-1">{t('auth.registerSubtitle')}</p>
         </div>
 
         {error && (
@@ -113,16 +119,16 @@ export const RegisterPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Full Name"
+            label={t('auth.fullName')}
             type="text"
-            placeholder="e.g. Mary Wanjiku"
+            placeholder={t('auth.fullNamePlaceholder')}
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
           />
 
           <Input
-            label="Email Address"
+            label={t('auth.emailLabel')}
             type="email"
             placeholder="mary@harvestiq.org"
             value={formData.email}
@@ -132,7 +138,7 @@ export const RegisterPage = () => {
           />
 
           <Select
-            label="Self-Service Role"
+            label={t('auth.roleLabel')}
             value={formData.role}
             onChange={(e) => setFormData({ ...formData, role: e.target.value })}
             options={[
@@ -142,19 +148,19 @@ export const RegisterPage = () => {
             ]}
           />
           <p className="text-[11px] text-slate-400 -mt-2">
-            * Privileged roles (Admin, Procurement Manager, Inventory Planner) require administrator assignment.
+            {t('auth.privilegedRoleNote')}
           </p>
 
           <Input
-            label="Phone Number (Optional)"
+            label={t('auth.phoneLabel')}
             type="text"
-            placeholder="+254 700 000 000"
+            placeholder={t('auth.phonePlaceholder')}
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
           />
 
           <div className="flex flex-col gap-1.5 w-full">
-            <label className="text-xs font-semibold text-slate-300">Password</label>
+            <label className="text-xs font-semibold text-slate-300">{t('auth.passwordLabel')}</label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -177,26 +183,26 @@ export const RegisterPage = () => {
               <div className="grid grid-cols-2 gap-1.5 mt-2 p-2.5 rounded-lg bg-slate-900/80 text-[11px]">
                 <div className={`flex items-center gap-1.5 ${hasMinLength ? 'text-emerald-400' : 'text-slate-400'}`}>
                   {hasMinLength ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                  <span>8+ characters</span>
+                  <span>{t('auth.passwordRules.minLength')}</span>
                 </div>
                 <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-400' : 'text-slate-400'}`}>
                   {hasUpper ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                  <span>Uppercase letter</span>
+                  <span>{t('auth.passwordRules.upper')}</span>
                 </div>
                 <div className={`flex items-center gap-1.5 ${hasLower ? 'text-emerald-400' : 'text-slate-400'}`}>
                   {hasLower ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                  <span>Lowercase letter</span>
+                  <span>{t('auth.passwordRules.lower')}</span>
                 </div>
                 <div className={`flex items-center gap-1.5 ${hasNumber ? 'text-emerald-400' : 'text-slate-400'}`}>
                   {hasNumber ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                  <span>Number/Special symbol</span>
+                  <span>{t('auth.passwordRules.number')}</span>
                 </div>
               </div>
             )}
           </div>
 
           <Input
-            label="Confirm Password"
+            label={t('auth.confirmPassword')}
             type="password"
             placeholder="••••••••"
             value={formData.confirmPassword}
@@ -210,14 +216,14 @@ export const RegisterPage = () => {
           />
 
           <Button type="submit" variant="primary" className="w-full py-2.5 mt-2" isLoading={loading}>
-            Create HarvestIQ Account
+            {t('auth.createAccountButton')}
           </Button>
         </form>
 
         <div className="mt-6 text-center text-xs text-slate-400">
-          Already have an account?{' '}
+          {t('auth.alreadyAccount')}{' '}
           <Link to="/login" className="text-emerald-400 font-bold hover:underline">
-            Sign In
+            {t('nav.signIn')}
           </Link>
         </div>
       </div>
@@ -225,7 +231,7 @@ export const RegisterPage = () => {
       <div className="text-center text-[11px] text-slate-500 pb-2">
         <Link to="/" className="hover:underline flex items-center justify-center gap-1">
           <ArrowLeft className="w-3.5 h-3.5" />
-          Back to Landing Page
+          {t('nav.backToHome')}
         </Link>
       </div>
     </div>
